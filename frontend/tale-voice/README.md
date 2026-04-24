@@ -1,5 +1,11 @@
-# Vue 3 + TypeScript + Vite
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+  # 故事生成网页
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+  This is a code bundle for 故事生成网页. The original project is available at https://www.figma.com/design/kRYgOUGHMEWjXDYvw8anFA/%E6%95%85%E4%BA%8B%E7%94%9F%E6%88%90%E7%BD%91%E9%A1%B5.
+
+  ## Running the code
+
+  Run `npm i` to install the dependencies.
+
+  Run `npm run dev` to start the development server.
+  
