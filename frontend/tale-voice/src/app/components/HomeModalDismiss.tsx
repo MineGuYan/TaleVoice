@@ -170,12 +170,17 @@ export function HomeModalDismiss() {
     }
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => setEditingUser({ ...editingUser, avatar: event.target?.result as string });
-    reader.readAsDataURL(file);
+    setError("");
+    const token = localStorage.getItem("token") || "";
+    const response = await api.common.upload(file, token);
+    if (response.success && response.data) {
+      setEditingUser({ ...editingUser, avatar: response.data });
+    } else {
+      setError(response.message || "头像上传失败");
+    }
   };
 
   const confirmDeleteStory = (storyId: string) => {

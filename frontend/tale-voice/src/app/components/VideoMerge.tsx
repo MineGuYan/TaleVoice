@@ -1,5 +1,5 @@
-import { Link, useNavigate, useParams } from "react-router";
-import { BookOpen, ArrowLeft, Video, Download, Save, X, Upload, Trash2 } from "lucide-react";
+import { Link, useParams } from "react-router";
+import { ArrowLeft, Video, Upload, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { api } from "../../services/api";
 import { AppHeader } from "./AppHeader";
@@ -25,14 +25,12 @@ function findStoryInLocal(storyId: string): Story | null {
 
 export function VideoMerge() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [story, setStory] = useState<Story | null>(null);
   const [videoSegments, setVideoSegments] = useState<VideoSegment[]>([]);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [mergedVideoUrl, setMergedVideoUrl] = useState<string>("");
-  const [progress, setProgress] = useState(0);
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -90,40 +88,26 @@ export function VideoMerge() {
 
     setLoading(true);
     setError("");
-    setProgress(0);
+    setNotice("");
 
     try {
-      // 模拟合成过程
-      const interval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            return 100;
-          }
-          return prev + 10;
-        });
-      }, 300);
-
-      // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      // 生成模拟合成视频
-      const mergedVideo = `https://neeko-copilot.bytedance.net/api/merge-videos?segments=${videoSegments.length}&hasAudio=${!!audioFile}`;
-      setMergedVideoUrl(mergedVideo);
+      const token = localStorage.getItem("token") || "";
+      const res = await api.video.generate(
+        {
+          projectId: id || "",
+          imageIds: videoSegments.map((segment) => segment.id),
+          style: "",
+          prompt: audioFile ? `音频:${audioFile.name}` : "",
+        },
+        token,
+      );
+      setNotice(res.message || "当前功能尚在开发中...");
     } catch (err) {
       setError("合成视频失败，请稍后重试");
       console.error("合成视频失败:", err);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDownload = () => {
-    if (!mergedVideoUrl) return;
-    const link = document.createElement("a");
-    link.href = mergedVideoUrl;
-    link.download = `merged-video-${Date.now()}.mp4`;
-    link.click();
   };
 
   if (!story) {
@@ -147,6 +131,12 @@ export function VideoMerge() {
         {error && (
           <div className="mb-6 rounded-lg bg-red-500/20 p-3 text-red-200">
             {error}
+          </div>
+        )}
+
+        {notice && (
+          <div className="mb-6 rounded-lg border border-[#63549f]/40 bg-[#63549f]/20 p-3 text-[#d8ddff]">
+            {notice}
           </div>
         )}
 
@@ -250,30 +240,12 @@ export function VideoMerge() {
               {loading ? (
                 <div className="flex flex-col items-center justify-center h-64">
                   <div className="w-16 h-16 border-4 border-[#63549f] border-t-transparent rounded-full animate-spin mb-4"></div>
-                  <div className="w-full bg-[#312752] rounded-full h-2 mb-2">
-                    <div 
-                      className="bg-[#63549f] h-2 rounded-full" 
-                      style={{ width: `${progress}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-[#e6e0ff]">合成进度: {progress}%</p>
+                  <p className="text-[#e6e0ff]">处理中...</p>
                 </div>
-              ) : mergedVideoUrl ? (
-                <div className="space-y-4">
-                  <div className="rounded-lg overflow-hidden">
-                    <video 
-                      src={mergedVideoUrl} 
-                      controls 
-                      className="w-full h-64 object-cover"
-                    />
-                  </div>
-                  <button
-                    onClick={handleDownload}
-                    className="w-full flex items-center justify-center gap-2 rounded-lg bg-[#63549f] py-2 text-[#faf8ff] transition-colors hover:bg-[#6b75c9]"
-                  >
-                    <Download className="h-4 w-4" />
-                    下载最终视频
-                  </button>
+              ) : notice ? (
+                <div className="flex flex-col items-center justify-center h-64 bg-[#231c40]/75 rounded-lg">
+                  <Video className="h-10 w-10 text-[#63549f] mb-3" />
+                  <p className="text-[#d8ddff] text-center px-6">{notice}</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-64 bg-[#231c40]/75 rounded-lg">

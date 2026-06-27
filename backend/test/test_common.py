@@ -23,7 +23,7 @@ async def test_upload_success(mock_upload):
         files = {"file": ("test_image.png", fake_file_content, "image/png")}
 
         # 发起无鉴权上传请求 (因为 get_current_user_optional 允许匿名)
-        response = await ac.post("/common/upload", files=files)
+        response = await ac.post("/api/common/upload", files=files)
 
         print(f"[正常上传] 响应数据: {response.json()}")
 
@@ -46,7 +46,7 @@ async def test_upload_invalid_extension():
         # 构造一个 .txt 文件
         files = {"file": ("danger.txt", b"hack text", "text/plain")}
 
-        response = await ac.post("/common/upload", files=files)
+        response = await ac.post("/api/common/upload", files=files)
 
         print(f"[格式拦截] 响应数据: {response.json()}")
 
@@ -66,7 +66,7 @@ async def test_upload_file_too_large():
         large_content = b"0" * (10 * 1024 * 1024 + 1)
         files = {"file": ("big_image.png", large_content, "image/png")}
 
-        response = await ac.post("/common/upload", files=files)
+        response = await ac.post("/api/common/upload", files=files)
 
         print(f"[大小拦截] 响应数据: {response.json()}")
 

@@ -12,12 +12,16 @@ export function RegisterCentered() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => setAvatar(reader.result as string);
-    reader.readAsDataURL(file);
+    setError("");
+    const response = await api.common.upload(file);
+    if (response.success && response.data) {
+      setAvatar(response.data);
+    } else {
+      setError(response.message || "头像上传失败");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,7 +81,7 @@ export function RegisterCentered() {
                   </div>
                   <div>
                     <p className="text-sm text-[#ede8ff]">上传头像</p>
-                    <p className="text-xs text-[#8a78b7]">仅做前端显示预览</p>
+                    <p className="text-xs text-[#8a78b7]">点击选择图片上传</p>
                   </div>
                 </div>
                 <Upload className="h-4 w-4 text-[#d8ddff]" />

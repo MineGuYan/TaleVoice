@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://127.0.0.1:4523/m1/8127899-7885352-default/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
 
 const USE_MOCK_DATA = false;
 
@@ -769,5 +769,46 @@ export const api = {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       }),
+  },
+
+  video: {
+    generate: (data: { projectId: string; imageIds: string[]; style?: string; prompt?: string }, token: string) =>
+      (async (): Promise<ApiResult> => {
+        const backendRes = await requestJson<null>("/video", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (backendRes?.message) {
+          return { success: backendRes.code === 200, message: backendRes.message, data: backendRes.data };
+        }
+
+        return ok(null, "当前功能尚在开发中...");
+      })(),
+  },
+
+  common: {
+    upload: (file: File, token?: string) =>
+      (async (): Promise<ApiResult<string>> => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const backendRes = await requestJson<string>("/common/upload", {
+          method: "POST",
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          body: formData,
+        });
+
+        // 上传接口返回 { code: 1, msg, data: OSS链接 }，与其他接口结构不同
+        if (backendRes?.data) {
+          return ok(backendRes.data, "上传成功");
+        }
+
+        return fail("图片上传失败，请稍后重试");
+      })(),
   },
 };

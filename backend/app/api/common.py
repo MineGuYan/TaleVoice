@@ -14,7 +14,7 @@ from app.core.logger import app_logger
 from app.core.oss import oss_client
 from app.schemas.common import UploadResponse, ResponseModel, APIException, ErrorCode
 
-router = APIRouter(prefix="/common", tags=["通用模块"])
+router = APIRouter(prefix="/api/common", tags=["通用模块"])
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".mp3", ".wav", ".ogg"}
 MAX_FILE_SIZE = 10 * 1024 * 1024
